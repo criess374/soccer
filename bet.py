@@ -2,11 +2,24 @@ import numpy as np
 import urllib.request
 from urllib.request import urlopen
 import pandas as pd
-
-
 from bs4 import BeautifulSoup
 import requests
 
+
+###########################
+# code to predict german bundesliga results
+# I only predict a winner, no draws
+# based on xGoals
+# Author: Christoph Riess, November 2020
+###########################
+
+# settings
+randomness = 0.3 # standard dev of prediction randomness of scored goals
+home_advantage = 0.02 # home advantage in goals
+
+# start computation
+
+#read xGoals from web
 # Set headers
 headers = requests.utils.default_headers()
 headers.update({ 'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'})
@@ -84,7 +97,7 @@ df =parse_html_table(table)
 df['Squad'] = df['Squad'].str.strip()
 #print(df)
 
-
+# dictionary with short names for teams
 name_conv = {
 "FCB"   :   'Bayern Munich',
 "RBL"   :   'RB Leipzig',
@@ -108,6 +121,7 @@ name_conv = {
 
 #print(give_short(xG,'Leverkusen'))
 
+# games to predict
 games = {
 "1" :   ("S04","WOB"),
 "2" :   ("HOF","VFB"),
@@ -123,8 +137,8 @@ games = {
 
 for i in range (1,10):
     # randomness and bonus for hometeam
-    rand_a = np.random.normal(0.02,0.3)
-    rand_b = np.random.normal(0,0.3)
+    rand_a = np.random.normal(home_advantage,randomness)
+    rand_b = np.random.normal(0,randomness)
 
 
     xg_0,xga_0 = give_xG(df,games[str(i)][0])
